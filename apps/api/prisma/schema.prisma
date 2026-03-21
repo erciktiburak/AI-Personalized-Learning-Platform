@@ -1,0 +1,161 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  name          String
+  passwordHash  String?
+  avatarUrl     String?
+  streak        Int      @default(0)
+  lastActiveAt  DateTime @default(now())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  assessments    Assessment[]
+  learningPaths  LearningPath[]
+  quizAttempts   QuizAttempt[]
+  progress       Progress[]
+}
+
+model Topic {
+  id          String  @id @default(cuid())
+  name        String
+  slug        String  @unique
+  description String
+  iconUrl     String?
+  category    String
+
+  assessments   Assessment[]
+  learningPaths LearningPath[]
+}
+
+model Assessment {
+  id          String           @id @default(cuid())
+  userId      String
+  topicId     String
+  status      AssessmentStatus @default(PENDING)
+  score       Float?
+  level       SkillLevel?
+  answers     Json?
+  createdAt   DateTime         @default(now())
+  completedAt DateTime?
+
+  user    User   @relation(fields: [userId], references: [id])
+  topic   Topic  @relation(fields: [topicId], references: [id])
+  questions AssessmentQuestion[]
+}
+
+model AssessmentQuestion {
+  id           String  @id @default(cuid())
+  assessmentId String
+  question     String
+  options      Json
+  correctAnswer String
+  explanation  String
+  difficulty   Int
+
+  assessment Assessment @relation(fields: [assessmentId], references: [id])
+}
+
+model LearningPath {
+  id          String           @id @default(cuid())
+  userId      String
+  topicId     String
+  title       String
+  description String
+  status      LearningPathStatus @default(GENERATING)
+  totalModules Int             @default(0)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  user    User    @relation(fields: [userId], references: [id])
+  topic   Topic   @relation(fields: [topicId], references: [id])
+  modules Module[]
+}
+
+model Module {
+  id             String       @id @default(cuid())
+  learningPathId String
+  title          String
+  description    String
+  order          Int
+  estimatedHours Float
+  content        Json?        // AI generated content
+  status         ModuleStatus @default(LOCKED)
+
+  learningPath LearningPath @relation(fields: [learningPathId], references: [id])
+  quizzes      Quiz[]
+  progress     Progress[]
+}
+
+model Quiz {
+  id          String   @id @default(cuid())
+  moduleId    String
+  title       String
+  type        QuizType
+  difficulty  Int
+  timeLimit   Int?
+  createdAt   DateTime @default(now())
+
+  module    Module        @relation(fields: [moduleId], references: [id])
+  questions QuizQuestion[]
+  attempts  QuizAttempt[]
+}
+
+model QuizQuestion {
+  id            String   @id @default(cuid())
+  quizId        String
+  question      String
+  type          QuestionType
+  options       Json?
+  correctAnswer String
+  explanation   String
+  points        Int      @default(10)
+
+  quiz Quiz @relation(fields: [quizId], references: [id])
+}
+
+model QuizAttempt {
+  id          String   @id @default(cuid())
+  userId      String
+  quizId      String
+  score       Float
+  answers     Json
+  timeTaken   Int
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+  quiz Quiz @relation(fields: [quizId], references: [id])
+}
+
+model Progress {
+  id         String         @id @default(cuid())
+  userId     String
+  moduleId   String
+  status     ProgressStatus @default(NOT_STARTED)
+  percentage Float          @default(0)
+  updatedAt  DateTime       @updatedAt
+
+  user   User   @relation(fields: [userId], references: [id])
+  module Module @relation(fields: [moduleId], references: [id])
+
+  @@unique([userId, moduleId])
+}
+
+enum AssessmentStatus { PENDING GENERATING COMPLETED FAILED }
+enum SkillLevel       { BEGINNER INTERMEDIATE ADVANCED EXPERT }
+enum LearningPathStatus { GENERATING READY COMPLETED }
+enum ModuleStatus     { LOCKED AVAILABLE IN_PROGRESS COMPLETED }
+enum QuizType         { ADAPTIVE PRACTICE FINAL }
+enum QuestionType     { MULTIPLE_CHOICE TRUE_FALSE SHORT_ANSWER CODE }
+enum ProgressStatus   { NOT_STARTED IN_PROGRESS COMPLETED }
