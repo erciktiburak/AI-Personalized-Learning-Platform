@@ -2,9 +2,8 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import prisma from '../prisma/client';
 import { EmailService } from './email.service';
-
-const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret';
-const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'fallback-refresh-secret';
+import { env } from '../config/env';
+import { generateTokens, blacklistToken } from '../utils/token';
 
 export class AuthService {
   static async register(email: string, name: string, password: string) {
@@ -36,9 +35,27 @@ export class AuthService {
     const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
     if (!isPasswordValid) throw new Error('Invalid credentials');
 
-    const accessToken = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '15m' });
-    const refreshToken = jwt.sign({ userId: user.id }, JWT_REFRESH_SECRET, { expiresIn: '7d' });
+    const tokens = generateTokens(user.id);
 
-    return { user, accessToken, refreshToken };
+    return { user, ...tokens };
+  }
+
+  static async refreshToken(oldRefreshToken: string) {
+    try {
+      const decoded = jwt.verify(oldRefreshToken, env.JWT_REFRESH_SECRET) as { userId: string };
+      const tokens = generateTokens(decoded.userId);
+      
+      // Blacklist the old refresh token for its remaining life
+      await blacklistToken(oldRefreshToken, 7 * 24 * 60 * 60);
+
+      return tokens;
+    } catch (error) {
+      throw new Error('Invalid refresh token');
+    }
+  }
+
+  static async logout(accessToken: string, refreshToken: string) {
+    if (accessToken) await blacklistToken(accessToken, 15 * 60);
+    if (refreshToken) await blacklistToken(refreshToken, 7 * 24 * 60 * 60);
   }
 }

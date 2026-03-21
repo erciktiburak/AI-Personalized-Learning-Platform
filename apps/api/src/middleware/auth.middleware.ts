@@ -1,22 +1,30 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-
-const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret';
+import { env } from '../config/env';
+import { isTokenBlacklisted } from '../utils/token';
 
 export interface AuthRequest extends Request {
   userId?: string;
+  token?: string;
 }
 
-export const authMiddleware = (req: AuthRequest, res: Response, next: NextFunction) => {
+export const authMiddleware = async (req: AuthRequest, res: Response, next: NextFunction) => {
   const token = req.headers.authorization?.split(' ')[1];
 
   if (!token) {
     return res.status(401).json({ message: 'No token provided' });
   }
 
+  // Check if token is blacklisted (logged out)
+  const blacklisted = await isTokenBlacklisted(token);
+  if (blacklisted) {
+    return res.status(401).json({ message: 'Token is no longer valid' });
+  }
+
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as { userId: string };
+    const decoded = jwt.verify(token, env.JWT_SECRET) as { userId: string };
     req.userId = decoded.userId;
+    req.token = token;
     next();
   } catch (error) {
     res.status(401).json({ message: 'Invalid token' });
