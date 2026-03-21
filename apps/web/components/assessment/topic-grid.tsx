@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { TopicCard } from "./topic-card";
 import { Search } from "lucide-react";
 
@@ -11,27 +11,18 @@ interface Topic {
   category: string;
 }
 
-export function TopicGrid() {
-  const [topics, setTopics] = useState<Topic[]>([]);
-  const [search, setSearch] = useState("");
-  const [loading, setLoading] = useState(true);
+interface TopicGridProps {
+  initialTopics: Topic[];
+}
 
-  useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/topics`)
-      .then((res) => res.json())
-      .then((data) => {
-        setTopics(data);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, []);
+export function TopicGrid({ initialTopics }: TopicGridProps) {
+  const [topics] = useState<Topic[]>(initialTopics);
+  const [search, setSearch] = useState("");
 
   const filteredTopics = topics.filter((topic) =>
     topic.name.toLowerCase().includes(search.toLowerCase()) ||
     topic.category.toLowerCase().includes(search.toLowerCase())
   );
-
-  if (loading) return <div>Yükleniyor...</div>;
 
   return (
     <div className="space-y-6">
@@ -53,6 +44,12 @@ export function TopicGrid() {
           <TopicCard key={topic.id} {...topic} />
         ))}
       </div>
+      
+      {filteredTopics.length === 0 && (
+        <div className="text-center py-10 text-gray-500">
+          Arama kriterine uygun konu bulunamadı.
+        </div>
+      )}
     </div>
   );
 }
