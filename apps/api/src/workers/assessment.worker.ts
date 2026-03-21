@@ -2,6 +2,7 @@ import { Worker, Job } from 'bullmq';
 import { redisConnection } from '../config/redis';
 import { generateAssessmentQuestions } from '../services/ai/assessment.ai';
 import prisma from '../prisma/client';
+import { globalEvents, EVENTS } from '../utils/event-emitter';
 
 export const assessmentWorker = new Worker(
   'assessment-generation',
@@ -14,7 +15,7 @@ export const assessmentWorker = new Worker(
 
       const questions = await generateAssessmentQuestions(topic.name);
 
-      await prisma.assessment.update({
+      const updatedAssessment = await prisma.assessment.update({
         where: { id: assessmentId },
         data: {
           status: 'COMPLETED',
@@ -30,6 +31,9 @@ export const assessmentWorker = new Worker(
         },
       });
 
+      // Emit event
+      globalEvents.emit(EVENTS.ASSESSMENT_COMPLETED, { userId, assessmentId, status: 'COMPLETED' });
+
       console.log(`Assessment ${assessmentId} generated successfully.`);
     } catch (error) {
       console.error(`Error generating assessment ${assessmentId}:`, error);
@@ -37,6 +41,8 @@ export const assessmentWorker = new Worker(
         where: { id: assessmentId },
         data: { status: 'FAILED' },
       });
+      
+      globalEvents.emit(EVENTS.ASSESSMENT_FAILED, { userId, assessmentId, status: 'FAILED' });
       throw error;
     }
   },

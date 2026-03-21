@@ -1,5 +1,6 @@
 import prisma from '../prisma/client';
 import { quizQueue } from '../queues/quiz.queue';
+import { AchievementService } from './achievement.service';
 
 export class QuizService {
   static async getByModuleId(moduleId: string, userId: string) {
@@ -69,6 +70,9 @@ export class QuizService {
         });
       }
     }
+
+    // Check for achievements
+    await AchievementService.checkAndUnlock(userId);
 
     return { attempt, score };
   }

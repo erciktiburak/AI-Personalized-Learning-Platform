@@ -8,6 +8,7 @@ router.use(authMiddleware);
 
 router.post('/start', AssessmentController.start);
 router.get('/status/:id', AssessmentController.getStatus);
+router.get('/status/:id/stream', AssessmentController.statusStream);
 router.post('/submit/:id', AssessmentController.submit);
 
 export default router;

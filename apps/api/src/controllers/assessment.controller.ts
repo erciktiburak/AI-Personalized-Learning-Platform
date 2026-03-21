@@ -1,6 +1,7 @@
 import { Response } from 'express';
 import { AssessmentService } from '../services/assessment.service';
 import { AuthRequest } from '../middleware/auth.middleware';
+import { globalEvents, EVENTS } from '../utils/event-emitter';
 
 export class AssessmentController {
   static async start(req: AuthRequest, res: Response) {
@@ -22,6 +23,40 @@ export class AssessmentController {
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
+  }
+
+  static async statusStream(req: AuthRequest, res: Response) {
+    const { id } = req.params;
+    const userId = req.userId!;
+
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+
+    const onCompleted = (data: any) => {
+      if (data.assessmentId === id && data.userId === userId) {
+        res.write(`data: ${JSON.stringify(data)}\n\n`);
+        cleanup();
+      }
+    };
+
+    const onFailed = (data: any) => {
+      if (data.assessmentId === id && data.userId === userId) {
+        res.write(`data: ${JSON.stringify(data)}\n\n`);
+        cleanup();
+      }
+    };
+
+    const cleanup = () => {
+      globalEvents.off(EVENTS.ASSESSMENT_COMPLETED, onCompleted);
+      globalEvents.off(EVENTS.ASSESSMENT_FAILED, onFailed);
+      res.end();
+    };
+
+    globalEvents.on(EVENTS.ASSESSMENT_COMPLETED, onCompleted);
+    globalEvents.on(EVENTS.ASSESSMENT_FAILED, onFailed);
+
+    req.on('close', cleanup);
   }
 
   static async submit(req: AuthRequest, res: Response) {
