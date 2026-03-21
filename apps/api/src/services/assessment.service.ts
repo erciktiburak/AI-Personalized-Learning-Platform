@@ -1,5 +1,6 @@
 import prisma from '../prisma/client';
 import { assessmentQueue } from '../queues/assessment.queue';
+import { learningPathQueue } from '../queues/learning-path.queue';
 
 export class AssessmentService {
   static async startAssessment(userId: string, topicId: string) {
@@ -54,7 +55,7 @@ export class AssessmentService {
     else if (score > 70) level = 'ADVANCED';
     else if (score > 40) level = 'INTERMEDIATE';
 
-    return prisma.assessment.update({
+    const result = await prisma.assessment.update({
       where: { id },
       data: {
         score,
@@ -64,5 +65,15 @@ export class AssessmentService {
         answers: JSON.stringify(answers),
       },
     });
+
+    await learningPathQueue.add('generate-path', {
+      userId: assessment.userId,
+      topicId: assessment.topicId,
+      level,
+      score,
+      assessmentId: assessment.id,
+    });
+
+    return result;
   }
 }

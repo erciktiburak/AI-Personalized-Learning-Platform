@@ -8,9 +8,11 @@ import authRoutes from './routes/auth.routes';
 import topicRoutes from './routes/topic.routes';
 import userRoutes from './routes/user.routes';
 import assessmentRoutes from './routes/assessment.routes';
+import learningPathRoutes from './routes/learning-path.routes';
 
 // Import workers to ensure they start
 import './workers/assessment.worker';
+import './workers/learning-path.worker';
 
 dotenv.config();
 
@@ -28,6 +30,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/topics', topicRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/assessment', assessmentRoutes);
+app.use('/api/learning-path', learningPathRoutes);
 
 // Health check
 app.get('/health', (req: Request, res: Response) => {
