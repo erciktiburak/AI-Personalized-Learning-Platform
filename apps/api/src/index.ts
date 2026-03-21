@@ -5,6 +5,7 @@ import morgan from 'morgan';
 import dotenv from 'dotenv';
 
 import authRoutes from './routes/auth.routes';
+import topicRoutes from './routes/topic.routes';
 
 dotenv.config();
 
@@ -19,6 +20,7 @@ app.use(morgan('dev'));
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/topics', topicRoutes);
 
 // Health check
 app.get('/health', (req: Request, res: Response) => {
