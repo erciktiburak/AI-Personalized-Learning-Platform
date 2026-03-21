@@ -9,10 +9,12 @@ import topicRoutes from './routes/topic.routes';
 import userRoutes from './routes/user.routes';
 import assessmentRoutes from './routes/assessment.routes';
 import learningPathRoutes from './routes/learning-path.routes';
+import quizRoutes from './routes/quiz.routes';
 
 // Import workers to ensure they start
 import './workers/assessment.worker';
 import './workers/learning-path.worker';
+import './workers/quiz.worker';
 
 dotenv.config();
 
@@ -31,6 +33,7 @@ app.use('/api/topics', topicRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/assessment', assessmentRoutes);
 app.use('/api/learning-path', learningPathRoutes);
+app.use('/api/quiz', quizRoutes);
 
 // Health check
 app.get('/health', (req: Request, res: Response) => {
