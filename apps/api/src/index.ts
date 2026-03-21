@@ -3,6 +3,9 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import compression from 'compression';
+import swaggerUi from 'swagger-ui-express';
+import YAML from 'yamljs';
+import path from 'path';
 import { env } from './config/env';
 
 import authRoutes from './routes/auth.routes';
@@ -20,6 +23,10 @@ import './workers/quiz.worker';
 
 const app = express();
 const port = env.PORT;
+
+// Swagger documentation
+const swaggerDocument = YAML.load(path.join(__dirname, 'docs/swagger.yaml'));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Middleware
 app.use(helmet());
@@ -57,4 +64,5 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 
 app.listen(port, () => {
   console.log(`[server]: Server is running at http://localhost:${port}`);
+  console.log(`[server]: API Docs available at http://localhost:${port}/api-docs`);
 });
