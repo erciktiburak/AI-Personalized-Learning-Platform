@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import prisma from '../prisma/client';
+import { EmailService } from './email.service';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret';
 const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'fallback-refresh-secret';
@@ -18,6 +19,12 @@ export class AuthService {
         passwordHash,
       },
     });
+
+    try {
+      await EmailService.sendWelcomeEmail(email, name);
+    } catch (e) {
+      console.error('Welcome email failed', e);
+    }
 
     return user;
   }
