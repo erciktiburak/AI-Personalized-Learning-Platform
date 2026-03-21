@@ -35,17 +35,16 @@ export class AuthService {
     const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
     if (!isPasswordValid) throw new Error('Invalid credentials');
 
-    const tokens = generateTokens(user.id);
+    const tokens = generateTokens(user.id, user.role);
 
     return { user, ...tokens };
   }
 
   static async refreshToken(oldRefreshToken: string) {
     try {
-      const decoded = jwt.verify(oldRefreshToken, env.JWT_REFRESH_SECRET) as { userId: string };
-      const tokens = generateTokens(decoded.userId);
+      const decoded = jwt.verify(oldRefreshToken, env.JWT_REFRESH_SECRET) as { userId: string, role: string };
+      const tokens = generateTokens(decoded.userId, decoded.role);
       
-      // Blacklist the old refresh token for its remaining life
       await blacklistToken(oldRefreshToken, 7 * 24 * 60 * 60);
 
       return tokens;

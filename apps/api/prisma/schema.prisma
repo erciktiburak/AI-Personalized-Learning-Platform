@@ -17,6 +17,7 @@ model User {
   emailVerified DateTime?
   image         String?
   passwordHash  String?
+  role          Role      @default(USER)
   streak        Int       @default(0)
   lastActiveAt  DateTime  @default(now())
   createdAt     DateTime  @default(now())
@@ -220,3 +221,4 @@ enum ModuleStatus     { LOCKED AVAILABLE IN_PROGRESS COMPLETED }
 enum QuizType         { ADAPTIVE PRACTICE FINAL }
 enum QuestionType     { MULTIPLE_CHOICE TRUE_FALSE SHORT_ANSWER CODE }
 enum ProgressStatus   { NOT_STARTED IN_PROGRESS COMPLETED }
+enum Role             { USER MENTOR ADMIN }
