@@ -2,6 +2,7 @@ import { Worker, Job } from 'bullmq';
 import { redisConnection } from '../config/redis';
 import { generateLearningPath } from '../services/ai/learning-path.ai';
 import prisma from '../prisma/client';
+import { LearningPathService } from '../services/learning-path.service';
 
 export const learningPathWorker = new Worker(
   'learning-path-generation',
@@ -37,6 +38,9 @@ export const learningPathWorker = new Worker(
           },
         },
       });
+
+      // Invalidate cache
+      await LearningPathService.invalidateUserCache(userId);
 
       console.log(`Learning path for user ${userId} generated successfully.`);
     } catch (error) {
