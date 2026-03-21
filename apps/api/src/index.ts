@@ -2,7 +2,8 @@ import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
-import dotenv from 'dotenv';
+import compression from 'compression';
+import { env } from './config/env';
 
 import authRoutes from './routes/auth.routes';
 import topicRoutes from './routes/topic.routes';
@@ -17,16 +18,18 @@ import './workers/assessment.worker';
 import './workers/learning-path.worker';
 import './workers/quiz.worker';
 
-dotenv.config();
-
 const app = express();
-const port = process.env.PORT || 4000;
+const port = env.PORT;
 
 // Middleware
 app.use(helmet());
-app.use(cors());
+app.use(compression());
+app.use(cors({
+  origin: process.env.NEXTAUTH_URL || 'http://localhost:3000',
+  credentials: true,
+}));
 app.use(express.json());
-app.use(morgan('dev'));
+app.use(morgan(env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -45,9 +48,10 @@ app.get('/health', (req: Request, res: Response) => {
 // Basic error handling middleware
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   console.error(err.stack);
-  res.status(500).json({
-    message: 'Internal Server Error',
-    error: process.env.NODE_ENV === 'development' ? err.message : undefined,
+  res.status(err.status || 500).json({
+    status: 'error',
+    message: err.message || 'Internal Server Error',
+    error: env.NODE_ENV === 'development' ? err : undefined,
   });
 });
 
