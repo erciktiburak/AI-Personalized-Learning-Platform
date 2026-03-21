@@ -3,6 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import compression from 'compression';
+import hpp from 'hpp';
 import swaggerUi from 'swagger-ui-express';
 import YAML from 'yamljs';
 import path from 'path';
@@ -31,11 +32,12 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 // Middleware
 app.use(helmet());
 app.use(compression());
+app.use(hpp());
 app.use(cors({
   origin: process.env.NEXTAUTH_URL || 'http://localhost:3000',
   credentials: true,
 }));
-app.use(express.json());
+app.use(express.json({ limit: '10kb' })); // Body limit for security
 app.use(morgan(env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 
 // Routes
