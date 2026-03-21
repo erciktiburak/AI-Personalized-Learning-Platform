@@ -9,13 +9,14 @@ export interface AuthRequest extends Request {
 }
 
 export const authMiddleware = async (req: AuthRequest, res: Response, next: NextFunction) => {
-  const token = req.headers.authorization?.split(' ')[1];
+  // Check Authorization header or query parameter (for SSE)
+  const token = req.headers.authorization?.split(' ')[1] || (req.query.token as string);
 
   if (!token) {
     return res.status(401).json({ message: 'No token provided' });
   }
 
-  // Check if token is blacklisted (logged out)
+  // Check if token is blacklisted
   const blacklisted = await isTokenBlacklisted(token);
   if (blacklisted) {
     return res.status(401).json({ message: 'Token is no longer valid' });
