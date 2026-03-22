@@ -61,7 +61,7 @@ export default function QuizPage() {
   };
 
   if (loading) return <AssessmentLoading />;
-  if (result) return <QuizResult score={result.score} onRetry={() => setResult(null)} />;
+  if (result) return <QuizResult score={result.score} recommendations={result.recommendations} onRetry={() => setResult(null)} />;
 
   return (
     <QuizPlayer

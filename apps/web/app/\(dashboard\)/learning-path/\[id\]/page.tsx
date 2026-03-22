@@ -46,7 +46,7 @@ export default function LearningPathDetailPage() {
         <h3 className="text-xl font-bold text-gray-900">Müfredat</h3>
         <div className="space-y-4">
           {path.modules.map((module: any) => (
-            <ModuleCard key={module.id} {...module} />
+            <ModuleCard key={module.id} id={module.id} {...module} />
           ))}
         </div>
       </div>
