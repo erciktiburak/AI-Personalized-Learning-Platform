@@ -31,6 +31,7 @@ model User {
   quizAttempts  QuizAttempt[]
   progress      Progress[]
   achievements  UserBadge[]
+  chatMessages  ChatMessage[]
 }
 
 model Badge {
@@ -54,6 +55,20 @@ model UserBadge {
 
   @@unique([userId, badgeId])
 }
+
+model ChatMessage {
+  id        String   @id @default(cuid())
+  userId    String
+  moduleId  String
+  role      ChatRole
+  content   String
+  createdAt DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id])
+  module Module @relation(fields: [moduleId], references: [id])
+}
+
+enum ChatRole { USER ASSISTANT }
 
 model Account {
   id                String  @id @default(cuid())
@@ -159,6 +174,7 @@ model Module {
   learningPath LearningPath @relation(fields: [learningPathId], references: [id])
   quizzes      Quiz[]
   progress     Progress[]
+  chatMessages ChatMessage[]
 }
 
 model Quiz {
