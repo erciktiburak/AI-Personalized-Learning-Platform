@@ -1,14 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { CheckCircle2, XCircle, ArrowRight, RotateCcw } from "lucide-react";
+import { CheckCircle2, XCircle, ArrowRight, RotateCcw, ExternalLink } from "lucide-react";
 
 interface QuizResultProps {
   score: number;
+  recommendations?: any[];
   onRetry: () => void;
 }
 
-export function QuizResult({ score, onRetry }: QuizResultProps) {
+export function QuizResult({ score, recommendations, onRetry }: QuizResultProps) {
   const isPassed = score >= 80;
 
   return (
@@ -42,6 +43,29 @@ export function QuizResult({ score, onRetry }: QuizResultProps) {
           %{Math.round(score)}
         </p>
       </div>
+
+      {!isPassed && recommendations && recommendations.length > 0 && (
+        <div className="text-left space-y-4">
+          <h3 className="text-lg font-bold text-gray-900">AI Önerileri: Eksiklerini Kapat</h3>
+          <div className="grid gap-4">
+            {recommendations.map((rec, i) => (
+              <a 
+                key={i} 
+                href={rec.url} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center justify-between p-4 bg-blue-50 border border-blue-100 rounded-lg hover:bg-blue-100 transition-colors"
+              >
+                <div>
+                  <p className="font-bold text-blue-900 text-sm">{rec.title}</p>
+                  <p className="text-xs text-blue-700 mt-1">{rec.reason}</p>
+                </div>
+                <ExternalLink className="h-4 w-4 text-blue-600" />
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="flex justify-center space-x-4 pt-6">
         <button
