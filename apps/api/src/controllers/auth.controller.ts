@@ -1,17 +1,20 @@
 import { Request, Response } from 'express';
 import { AuthService } from '../services/auth.service';
 import { AuthRequest } from '../middleware/auth.middleware';
+import logger from '../utils/logger';
 
 export class AuthController {
   static async register(req: Request, res: Response) {
     try {
       const { email, name, password } = req.body;
       const user = await AuthService.register(email, name, password);
+      logger.info(`User registered: ${email}`);
       res.status(201).json({ 
         message: 'User registered successfully', 
         user: { id: user.id, email: user.email, name: user.name } 
       });
     } catch (error: any) {
+      logger.warn(`Registration failed: ${req.body.email} - ${error.message}`);
       res.status(400).json({ message: error.message });
     }
   }
@@ -20,12 +23,14 @@ export class AuthController {
     try {
       const { email, password } = req.body;
       const { user, accessToken, refreshToken } = await AuthService.login(email, password);
+      logger.info(`User logged in: ${email}`);
       res.json({
         user: { id: user.id, email: user.email, name: user.name },
         accessToken,
         refreshToken
       });
     } catch (error: any) {
+      logger.warn(`Login failed: ${req.body.email} - ${error.message}`);
       res.status(401).json({ message: error.message });
     }
   }

@@ -8,6 +8,7 @@ import swaggerUi from 'swagger-ui-express';
 import YAML from 'yamljs';
 import path from 'path';
 import { env } from './config/env';
+import logger from './utils/logger';
 
 import authRoutes from './routes/auth.routes';
 import topicRoutes from './routes/topic.routes';
@@ -67,6 +68,6 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 });
 
 app.listen(port, () => {
-  console.log(`[server]: Server is running at http://localhost:${port}`);
-  console.log(`[server]: API Docs available at http://localhost:${port}/api-docs`);
+  logger.info(`[server]: Server is running at http://localhost:${port}`);
+  logger.info(`[server]: API Docs available at http://localhost:${port}/api-docs`);
 });
