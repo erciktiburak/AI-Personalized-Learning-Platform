@@ -8,7 +8,8 @@ import {
   GraduationCap, 
   LineChart, 
   User, 
-  LogOut 
+  LogOut,
+  Trophy
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 
@@ -16,6 +17,7 @@ const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Öğrenme Yolu", href: "/learning-path", icon: BookOpen },
   { name: "Quizler", href: "/quiz", icon: GraduationCap },
+  { name: "Liderlik Tablosu", href: "/leaderboard", icon: Trophy },
   { name: "İlerleme", href: "/progress", icon: LineChart },
   { name: "Profil", href: "/profile", icon: User },
 ];
