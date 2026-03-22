@@ -58,6 +58,12 @@ export class QuizService {
         create: { userId, moduleId: quiz.moduleId, status: 'COMPLETED', percentage: 100 },
       });
 
+      // Award XP points (e.g., 50 XP per completed module)
+      await prisma.user.update({
+        where: { id: userId },
+        data: { totalPoints: { increment: 50 } },
+      });
+
       // Unlock next module
       const currentModule = await prisma.module.findUnique({ where: { id: quiz.moduleId } });
       if (currentModule) {

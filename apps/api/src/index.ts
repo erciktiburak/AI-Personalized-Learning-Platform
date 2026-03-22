@@ -16,6 +16,7 @@ import assessmentRoutes from './routes/assessment.routes';
 import learningPathRoutes from './routes/learning-path.routes';
 import quizRoutes from './routes/quiz.routes';
 import progressRoutes from './routes/progress.routes';
+import leaderboardRoutes from './routes/leaderboard.routes';
 
 // Import workers to ensure they start
 import './workers/assessment.worker';
@@ -48,6 +49,7 @@ app.use('/api/assessment', assessmentRoutes);
 app.use('/api/learning-path', learningPathRoutes);
 app.use('/api/quiz', quizRoutes);
 app.use('/api/progress', progressRoutes);
+app.use('/api/leaderboard', leaderboardRoutes);
 
 // Health check
 app.get('/health', (req: Request, res: Response) => {
