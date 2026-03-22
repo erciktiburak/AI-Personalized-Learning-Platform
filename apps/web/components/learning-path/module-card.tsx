@@ -1,15 +1,17 @@
 "use client";
 
 import { Lock, CheckCircle2, PlayCircle } from "lucide-react";
+import Link from "next/link";
 
 interface ModuleCardProps {
+  id: string;
   title: string;
   description: string;
   order: number;
   status: string;
 }
 
-export function ModuleCard({ title, description, order, status }: ModuleCardProps) {
+export function ModuleCard({ id, title, description, order, status }: ModuleCardProps) {
   const isLocked = status === "LOCKED";
   const isCompleted = status === "COMPLETED";
   const isAvailable = status === "AVAILABLE" || status === "IN_PROGRESS";
@@ -37,11 +39,16 @@ export function ModuleCard({ title, description, order, status }: ModuleCardProp
             {title}
           </h4>
           {isAvailable && !isCompleted && (
-            <button className="flex items-center text-xs font-semibold text-blue-600">
+            <Link href={`/module/${id}`} className="flex items-center text-xs font-semibold text-blue-600">
               <PlayCircle className="mr-1 h-4 w-4" />
               BAŞLA
-            </button>
+            </Link>
           ) }
+          {isCompleted && (
+            <Link href={`/module/${id}`} className="flex items-center text-xs font-semibold text-green-600">
+              İNCELE
+            </Link>
+          )}
         </div>
         <p className={`mt-1 text-sm ${isLocked ? "text-gray-400" : "text-gray-600"}`}>
           {description}
