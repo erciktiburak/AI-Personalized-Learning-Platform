@@ -210,6 +210,7 @@ model QuizAttempt {
   quizId      String
   score       Float
   answers     Json
+  recommendations Json?  // AI generated recommendations
   timeTaken   Int
   createdAt   DateTime @default(now())
 
