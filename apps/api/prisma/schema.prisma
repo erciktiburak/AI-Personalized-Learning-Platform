@@ -32,6 +32,7 @@ model User {
   progress      Progress[]
   achievements  UserBadge[]
   chatMessages  ChatMessage[]
+  projectSubmissions ProjectSubmission[]
 }
 
 model Badge {
@@ -187,6 +188,7 @@ model Module {
   quizzes      Quiz[]
   progress     Progress[]
   chatMessages ChatMessage[]
+  projectSubmissions ProjectSubmission[]
 }
 
 model Quiz {
@@ -243,6 +245,22 @@ model Progress {
 
   @@unique([userId, moduleId])
 }
+
+model ProjectSubmission {
+  id        String   @id @default(cuid())
+  userId    String
+  moduleId  String
+  code      String   @db.Text
+  feedback  String?  @db.Text
+  score     Int?
+  status    SubmissionStatus @default(PENDING)
+  createdAt DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id])
+  module Module @relation(fields: [moduleId], references: [id])
+}
+
+enum SubmissionStatus { PENDING REVIEWED FAILED }
 
 enum AssessmentStatus { PENDING GENERATING COMPLETED FAILED }
 enum SkillLevel       { BEGINNER INTERMEDIATE ADVANCED EXPERT }

@@ -21,6 +21,7 @@ import progressRoutes from './routes/progress.routes';
 import leaderboardRoutes from './routes/leaderboard.routes';
 import chatRoutes from './routes/chat.routes';
 import socialRoutes from './routes/social.routes';
+import projectRoutes from './routes/project.routes';
 
 // Import workers to ensure they start
 import './workers/assessment.worker';
@@ -57,6 +58,7 @@ app.use('/api/progress', progressRoutes);
 app.use('/api/leaderboard', leaderboardRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/social', socialRoutes);
+app.use('/api/project', projectRoutes);
 
 // Health check
 app.get('/health', (req: Request, res: Response) => {
