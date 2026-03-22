@@ -44,6 +44,18 @@ model Badge {
   users       UserBadge[]
 }
 
+model DailyQuest {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  points      Int      @default(20)
+  type        QuestType
+  criteria    Json
+  createdAt   DateTime @default(now())
+}
+
+enum QuestType { QUIZ_WIN STREAK_MAINTAIN MODULE_COMPLETE }
+
 model UserBadge {
   id        String   @id @default(cuid())
   userId    String
